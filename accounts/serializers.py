@@ -78,6 +78,16 @@ class LoginSerializer(serializers.Serializer):
         return attrs
 
 
+class LoginResponseSerializer(serializers.Serializer):
+    token = serializers.CharField()
+    user_id = serializers.IntegerField()
+    username = serializers.CharField()
+
+
+class MessageSerializer(serializers.Serializer):
+    detail = serializers.CharField()
+
+
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User

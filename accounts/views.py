@@ -1,19 +1,14 @@
-from django.shortcuts import render
-
-# Create your views here.
-# accounts/views.py
-
-from django.contrib.auth.models import User
 from rest_framework import status, generics
 from rest_framework.authtoken.models import Token
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.views import APIView
 from drf_spectacular.utils import extend_schema
 
 from .serializers import (
-    RegisterSerializer,
+    LoginResponseSerializer,
     LoginSerializer,
+    MessageSerializer,
+    RegisterSerializer,
     UserProfileSerializer,
 )
 
@@ -45,19 +40,21 @@ class RegisterView(generics.CreateAPIView):
         )
 
 
-class LoginView(APIView):
+class LoginView(generics.GenericAPIView):
     """
     POST /api/auth/login/
     Authenticates a user and returns an API token.
     """
+    serializer_class = LoginSerializer
     permission_classes = [AllowAny]
 
     @extend_schema(
         summary="Login and obtain API token",
         request=LoginSerializer,
+        responses={200: LoginResponseSerializer},
     )
     def post(self, request):
-        serializer = LoginSerializer(data=request.data)
+        serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data["user"]
         token, _ = Token.objects.get_or_create(user=user)
@@ -70,13 +67,19 @@ class LoginView(APIView):
         )
 
 
-class LogoutView(APIView):
+class LogoutView(generics.GenericAPIView):
     """
     POST /api/auth/logout/
     Deletes the user's authentication token, effectively logging them out.
     """
+    serializer_class = MessageSerializer
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+        summary="Logout and invalidate current API token",
+        request=None,
+        responses={200: MessageSerializer},
+    )
     def post(self, request):
         try:
             request.user.auth_token.delete()
