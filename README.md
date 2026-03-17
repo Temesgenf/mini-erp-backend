@@ -81,6 +81,10 @@ Base URL: `http://127.0.0.1:8000/api/`
 | Leave | POST | `/api/leaves/{id}/reject/` | Reject leave request | Yes |
 | Attendance | GET, POST | `/api/attendance/` | List/Create attendance records | Yes |
 | Attendance | GET, PUT, PATCH, DELETE | `/api/attendance/{id}/` | Retrieve/Update/Delete attendance record | Yes |
+| Attendance | POST | `/api/attendance/check-in/` | Check in for current day | Yes |
+| Attendance | POST | `/api/attendance/check-out/` | Check out for current day | Yes |
+| Project | GET, POST | `/api/projects/` | List/Create projects | Yes |
+| Project | GET, PUT, PATCH, DELETE | `/api/projects/{id}/` | Retrieve/Update/Delete project | Yes |
 | Docs | GET | `/api/schema/` | OpenAPI schema | No |
 | Docs | GET | `/api/docs/` | Swagger UI | No |
 | Docs | GET | `/api/redoc/` | ReDoc UI | No |

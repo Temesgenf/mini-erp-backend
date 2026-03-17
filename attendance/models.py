@@ -1,5 +1,4 @@
 from django.db import models
-from django.utils import timezone
 from decimal import Decimal
 from hr.models import Employee
 
@@ -110,16 +109,16 @@ class AttendanceRecord(models.Model):
                 f"{self.date} [{self.get_status_display()}")
 
     def save(self, *args, **kwargs):
-        if self.check_in and self.check_out:
-            if self.check_out > self.check_in:
-                duration = self.check_out - self.check_in
-                total = Decimal(str(round(duration.total_seconds() / 3600 , 2)))
-                self.working_hours = total
-                overtime = total - self.STANDARD_HOURS
-                self.overtime_hours = max(Decimal('0'), overtime)
+        if self.check_in and self.check_out and self.check_out > self.check_in:
+            duration = self.check_out - self.check_in
+            total = Decimal(str(round(duration.total_seconds() / 3600, 2)))
+            self.working_hours = total
+            overtime = total - self.STANDARD_HOURS
+            self.overtime_hours = max(Decimal("0"), overtime)
 
-            if self.check_in.hour >= 9 and self.status =='PRESENT':
-                self.status = 'LATE'
-            super().save(*args, **kwargs)
+        if self.check_in and self.check_in.hour >= 9 and self.status == 'PRESENT':
+            self.status = 'LATE'
+
+        super().save(*args, **kwargs)
     def is_complete(self):
         return self.check_in is not None and self.check_out is not None

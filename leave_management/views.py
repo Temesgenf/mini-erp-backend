@@ -49,7 +49,10 @@ class LeaveRequestViewSet(viewsets.ModelViewSet):
                 {"error": "Only PENDING requests can be approved."},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        reviewer = request.user.employee_profile
+        try:
+            reviewer = request.user.employee_profile
+        except Employee.DoesNotExist:
+            reviewer = None
         comment = request.data.get("comment", "")
         leave.approve(reviewer=reviewer, comment=comment)
         return Response({"detail": "Leave request approved."})
@@ -62,7 +65,10 @@ class LeaveRequestViewSet(viewsets.ModelViewSet):
                 {"error": "Only PENDING requests can be rejected."},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        reviewer = request.user.employee_profile
+        try:
+            reviewer = request.user.employee_profile
+        except Employee.DoesNotExist:
+            reviewer = None
         comment = request.data.get("comment", "")
         leave.reject(reviewer=reviewer, comment=comment)
         return Response({"detail": "Leave request rejected."})

@@ -5,7 +5,12 @@ from rest_framework import serializers
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, min_length=8)
-    password2 = serializers.CharField(write_only=True, min_length=8)
+    password2 = serializers.CharField(write_only=True, min_length=8, required=False)
+    password_confirm = serializers.CharField(
+        write_only=True,
+        min_length=8,
+        required=False,
+    )
 
     class Meta:
         model = User
@@ -17,6 +22,7 @@ class RegisterSerializer(serializers.ModelSerializer):
             "last_name",
             "password",
             "password2",
+            "password_confirm",
         ]
         read_only_fields = ["id"]
 
@@ -31,14 +37,21 @@ class RegisterSerializer(serializers.ModelSerializer):
         return value
 
     def validate(self, attrs):
-        if attrs["password"] != attrs["password2"]:
+        confirmation = attrs.get("password_confirm") or attrs.get("password2")
+        if not confirmation:
             raise serializers.ValidationError(
-                {"password2": "Passwords do not match."}
+                {"password_confirm": "Please confirm your password."}
+            )
+
+        if attrs["password"] != confirmation:
+            raise serializers.ValidationError(
+                {"password_confirm": "Passwords do not match."}
             )
         return attrs
 
     def create(self, validated_data):
-        validated_data.pop("password2")
+        validated_data.pop("password2", None)
+        validated_data.pop("password_confirm", None)
         password = validated_data.pop("password")
 
         user = User.objects.create_user(password=password, **validated_data)
